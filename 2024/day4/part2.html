@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-MAS Word Search</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+    <h1>X-MAS Word Search</h1>
+    <input type="file" id="fileInput" />
+    <p>Total X-MAS Count: <span id="count">0</span></p>
+
+    <script>
+        let grid = [];
+        const cellSize = 40;
+        let xmasCount = 0;
+
+        function processFile(fileContent) {
+            const lines = fileContent.trim().split('\n');
+            grid = lines.map(line => line.split(''));
+            countXmasPatterns();
+            redraw();
+        }
+
+        function setup() {
+            createCanvas(400, 400);
+            noLoop();
+            document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const fileContent = e.target.result;
+                    processFile(fileContent);
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function countXmasPatterns() {
+            xmasCount = 0;
+            const rowCount = grid.length;
+            const colCount = grid[0].length;
+
+            for (let i = 0; i < rowCount - 2; i++) {
+                for (let j = 0; j < colCount - 2; j++) {
+                    if (grid[i][j] === 'M' && grid[i+1][j+1] === 'A' && grid[i+2][j+2] === 'S' &&
+                        grid[i+2][j] === 'S' && grid[i+1][j+1] === 'A' && grid[i][j+2] === 'M') {
+                        xmasCount++;
+                    }
+                }
+            }
+
+            document.getElementById('count').innerText = xmasCount;
+        }
+
+        function draw() {
+            const rowCount = grid.length;
+            const colCount = grid[0].length;
+            for (let i = 0; i < rowCount; i++) {
+                for (let j = 0; j < colCount; j++) {
+                    const letter = grid[i][j];
+                    let color = 'white';
+                    if (letter === 'M') color = 'red';
+                    else if (letter === 'A') color = 'green';
+                    else if (letter === 'S') color = 'blue';
+
+                    fill(color);
+                    noStroke();
+                    rect(j * cellSize, i * cellSize, cellSize, cellSize);
+
+                    if (color !== 'white') {
+                        fill(255);
+                        textAlign(CENTER, CENTER);
+                        textSize(18);
+                        text(letter, j * cellSize + cellSize / 2, i * cellSize + cellSize / 2);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
