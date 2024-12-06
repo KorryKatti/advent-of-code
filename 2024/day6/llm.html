@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guard Escape Simulation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(20, 30px);
+            grid-template-rows: repeat(20, 30px);
+            gap: 2px;
+            margin-bottom: 20px;
+        }
+        .cell {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #ddd;
+            background-color: white;
+        }
+        .obstacle {
+            background-color: black;
+        }
+        .guard {
+            background-color: red;
+        }
+        #button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Guard Escape Simulation</h1>
+
+<div id="grid"></div>
+
+<button id="button">Place Obstacle and Simulate</button>
+
+<script>
+    // Initialize grid size and map
+    const gridSize = 20;
+    const grid = [];
+    let guardPos = {x: 10, y: 10, dir: '^'};  // Starting position of the guard
+    let obstacles = []; // Will hold coordinates of permanent obstacles
+    let addedObstacle = null; // Track temporary obstacle
+    const initialGuardPos = {x: 10, y: 10, dir: '^'};  // Save the initial position
+
+    // Example map.txt content (use actual content for real use)
+    const mapData = [
+        '....#.....',
+        '.........#',
+        '..........',
+        '..#.......',
+        '.......#..',
+        '..........',
+        '.#..^.....',
+        '........#.',
+        '#.........',
+        '......#...'
+    ];
+
+    // Define direction mappings for movement
+    const directions = {
+        '^': {dx: 0, dy: -1},  // Up
+        '>': {dx: 1, dy: 0},   // Right
+        'v': {dx: 0, dy: 1},   // Down
+        '<': {dx: -1, dy: 0}   // Left
+    };
+
+    // Create the grid
+    function createGrid() {
+        const gridContainer = document.getElementById('grid');
+        gridContainer.innerHTML = '';  // Clear previous grid
+        for (let y = 0; y < gridSize; y++) {
+            const row = [];
+            for (let x = 0; x < gridSize; x++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                gridContainer.appendChild(cell);
+                row.push(cell);
+            }
+            grid.push(row);
+        }
+    }
+
+    // Draw the grid with the current state (obstacles, guard, etc.)
+    function drawGrid() {
+        // Reset grid
+        for (let y = 0; y < gridSize; y++) {
+            for (let x = 0; x < gridSize; x++) {
+                grid[y][x].classList.remove('obstacle', 'guard');
+            }
+        }
+
+        // Add permanent obstacles from mapData
+        for (let y = 0; y < mapData.length; y++) {
+            for (let x = 0; x < mapData[y].length; x++) {
+                if (mapData[y][x] === '#') {
+                    grid[y][x].classList.add('obstacle');
+                    obstacles.push({x, y}); // Store permanent obstacles
+                }
+            }
+        }
+
+        // Add the guard
+        grid[guardPos.y][guardPos.x].classList.add('guard');
+
+        // Add the temporary obstacle if present
+        if (addedObstacle) {
+            grid[addedObstacle.y][addedObstacle.x].classList.add('obstacle');
+        }
+    }
+
+    // Get the guard's direction as a number (0 = up, 1 = right, 2 = down, 3 = left)
+    function getDirectionValue() {
+        switch (guardPos.dir) {
+            case '^': return 0;
+            case '>': return 1;
+            case 'v': return 2;
+            case '<': return 3;
+        }
+    }
+
+    // Turn the guard right (clockwise)
+    function turnRight() {
+        const directionsArray = ['^', '>', 'v', '<'];
+        const currentDirIndex = directionsArray.indexOf(guardPos.dir);
+        guardPos.dir = directionsArray[(currentDirIndex + 1) % 4];
+    }
+
+    // Simulate the guard's movement
+    async function simulateGuard() {
+        // Remove the previous temporary obstacle if it exists
+        if (addedObstacle) {
+            // Don't add this position to obstacles
+            addedObstacle = null;
+        }
+
+        // Place new obstacle at a random empty spot
+        let x, y;
+        do {
+            x = Math.floor(Math.random() * gridSize);
+            y = Math.floor(Math.random() * gridSize);
+        } while (grid[y][x].classList.contains('obstacle') || (x === guardPos.x && y === guardPos.y));
+
+        addedObstacle = {x, y}; // Save the position of the added obstacle
+        drawGrid();
+
+        // Reset the guard to its original position
+        guardPos = {...initialGuardPos};  // Reset guard to the starting position
+
+        // Simulate the guard's movement
+        let guardStuck = false;
+
+        // Loop until the guard escapes or gets stuck
+        for (let steps = 0; steps < 100; steps++) {
+            let direction = directions[guardPos.dir];
+            let newX = guardPos.x + direction.dx;
+            let newY = guardPos.y + direction.dy;
+
+            // Check for boundaries
+            if (newX < 0 || newX >= gridSize || newY < 0 || newY >= gridSize) {
+                guardStuck = true;
+                break;
+            }
+
+            // Check for obstacles
+            if (grid[newY][newX].classList.contains('obstacle')) {
+                // Turn right if an obstacle is encountered
+                turnRight();
+                continue;
+            }
+
+            // Move the guard
+            guardPos.x = newX;
+            guardPos.y = newY;
+
+            // Update grid after each move
+            drawGrid();
+
+            // If the guard reaches the edge, it escapes
+            if (guardPos.x === 0 || guardPos.x === gridSize - 1 || guardPos.y === 0 || guardPos.y === gridSize - 1) {
+                alert('Guard escaped!');
+                return;
+            }
+
+            // Delay to show movement
+            await new Promise(resolve => setTimeout(resolve, 200));  // Delay of 200ms
+        }
+
+        if (guardStuck) {
+            alert('Guard is stuck!');
+        }
+    }
+
+    // Initialize the grid and add event listener to button
+    createGrid();
+    drawGrid();
+
+    document.getElementById('button').addEventListener('click', simulateGuard);
+</script>
+
+</body>
+</html>
