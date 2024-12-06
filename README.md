@@ -1,6 +1,8 @@
 # advent-of-code
 waow sigma
 
+these might not be the best codes 
 
-##### took help from llms in zig and haskell
-##### C a bit of stackoverflow
+yeah 
+
+whatever man
