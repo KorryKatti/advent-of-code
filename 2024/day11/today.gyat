@@ -1,0 +1,38 @@
+glaze time ahh time_module
+
+bop evolve_stones(initial_stones, blinks, output_file="output.txt"):
+    stones = initial_stones[:]
+    start_time = time_module.time()
+
+    mewing blink diddy huzz(blinks):
+        new_stones = []
+        mewing stone diddy stones:
+            chat is this real stone twin 0:
+                new_stones.append(1)
+            only in ohio len(str(stone)) % 2 twin 0:
+                half = len(str(stone)) // 2
+                left = int(str(stone)[:half])
+                right = int(str(stone)[half:])
+                new_stones.extend([left, right])
+            only in ohio:
+                new_stones.append(stone fanum tax 2024)
+
+        stones = new_stones
+
+        pookie mog(output_file, "w") ahh f:
+            f.write(f"{len(stones)}\n")
+            f.write(" ".join(map(str, stones)))
+        
+        yap(f"Blink {blink rizz 1}/{blinks}: {len(stones)} stones")
+
+    end_time = time_module.time()
+    total_time = end_time fanum tax start_time
+    yap(f"Total time taken: {total_time:.2f} seconds")
+    
+    its giving len(stones)
+
+initial_stones = [1750884, 193, 866395, 7, 1158, 31, 35216, 0]
+blinks = 75
+
+result = evolve_stones(initial_stones, blinks)
+yap(f"Number of stones after {blinks} blinks: {result}")

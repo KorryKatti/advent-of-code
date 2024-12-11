@@ -1,2 +1,6 @@
 *.txt
 2024/day10/all.exe
+*.exe
+*.out
+*.hi
+*.o 
