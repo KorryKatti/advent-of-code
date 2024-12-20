@@ -1,0 +1,1 @@
+for part 2 brute works not p2
